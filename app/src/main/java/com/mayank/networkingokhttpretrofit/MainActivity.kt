@@ -1,7 +1,12 @@
 package com.mayank.networkingokhttpretrofit
 
+import android.content.DialogInterface
 import android.os.Bundle
+import android.view.LayoutInflater
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.mayank.networkingokhttpretrofit.Client.retrofitCallBack
+import com.mayank.networkingokhttpretrofit.Client.service
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 //        okHttpClient.newCall(getUrl("search/users?q=%22Mayank%20Gupta%22"))
 //            .enqueue(okhttpCallback{response, throwable ->
 //            response?.let{
-//                val gson = Gson().fromJson(it.body?.string(),Github::class.java)   //  3rd Method
+//                val gson = Gson().fromJson(it.body?.string(),Github::class.java)                                     //  3rd Method
 //                runOnUiThread{
 //                    textView.text = gson.items.toString()
 //                }
@@ -35,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 //
 //            override fun onResponse(call: Call, response: Response) {
 //                if(response.isSuccessful){
-//                    val gson = Gson().fromJson(response.body?.string(),Github::class.java)    // 1st Method
+//                    val gson = Gson().fromJson(response.body?.string(),Github::class.java)                   // 1st Method
 //                    runOnUiThread{
 //                        textView.text = gson.items.toString()
 //                    }
@@ -43,6 +48,8 @@ class MainActivity : AppCompatActivity() {
 //            }
 //       })
 //        client.newCall(request).execute() // needs Async Task To be Implemented
+
+
         Client.service.listUsers().enqueue(object :Callback<GithubResponse> {
             override fun onFailure(call: Call<GithubResponse>, t: Throwable) {
 
@@ -60,6 +67,23 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        val inflater = LayoutInflater.from(this)
+
+        AlertDialog.Builder(this).setTitle("Hello").setMessage("Hello Everyone")
+            .setPositiveButton("Ok") { dialogInterface: DialogInterface, i: Int ->
+                service.listUsers().enqueue(retrofitCallBack { response, throwable ->
+                    response?.let {
+                        runOnUiThread {
+                            textView.text = it.body()?.items.toString()
+                        }
+                    }
+                })
+            }
+            .setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
+                dialogInterface.dismiss()
+            }.setCancelable(true)
+            .show()
     }
 
 
@@ -67,7 +91,7 @@ class MainActivity : AppCompatActivity() {
 //        return object :Callback{
 //            override fun onFailure(call: Call, e: IOException) = fn(null,e)
 //
-//            override fun onResponse(call: Call, response: Response) = fn(response,null)   //2nd method
+//            override fun onResponse(call: Call, response: Response) = fn(response,null)                       //2nd method
 //
 //        }
 //    }
